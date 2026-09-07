@@ -1,0 +1,20 @@
+# .venv / venv
+venv/
+.venv/
+env/
+ENV/
+
+# .db / database files
+*.sqlite3
+*.db
+
+# python cache & compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# OS & editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

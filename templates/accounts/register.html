@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kado - Register</title>
+</head>
+<body>
+    <h2>Register</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <p style="color: red;">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    <form method="POST" action="{% url 'register' %}">
+        {% csrf_token %}
+        <div>
+            <label for="id_email">Email: </label>
+            <input type="email" id="id_email" name="email" required placeholder="name@example.com">
+        </div>
+        <div>
+            <label for="id_password">Password: </label>
+            <input type="password" id="id_password" name="password" required placeholder="••••••••">
+        </div>
+        <div>
+            <label for="id_conf_password">Confirm Password: </label>
+            <input type="password" id="idconf__password" name="conf_password" required placeholder="••••••••">
+        </div>
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
