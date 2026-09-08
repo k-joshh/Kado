@@ -34,14 +34,16 @@ body {
 }
 
 .brand {
-    display: inline-flex;
-    margin-bottom: 64px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
 .brand img {
     display: block;
     width: auto;
-    height: 42px;
+    height: 80px;
 }
 
 .auth-heading {
@@ -63,12 +65,6 @@ h1 {
     font-family: var(--font-heading);
     font-size: clamp(2.15rem, 4vw, 3rem);
     line-height: 1.05;
-}
-
-.auth-intro {
-    margin: 14px 0 0;
-    color: #64748b;
-    font-size: 0.95rem;
 }
 
 .form-messages {
@@ -104,7 +100,7 @@ h1 {
     width: 100%;
     padding: 14px 15px;
     border: 1px solid #cbd5e1;
-    border-radius: 5px;
+    border-radius: 15px;
     background: #ffffff;
     color: var(--color-navy);
     font: inherit;
@@ -165,12 +161,22 @@ h1 {
 .auth-visual::after {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        180deg,
-        rgb(15 23 42 / 5%),
-        rgb(15 23 42 / 35%)
-    );
+    z-index: 1;
+    background:
+        linear-gradient(
+            to right,
+            #f8fafc 0%,
+            rgb(248 250 252 / 85%) 8%,
+            rgb(248 250 252 / 35%) 20%,
+            transparent 35%
+        ),
+        linear-gradient(
+            180deg,
+            rgb(15 23 42 / 5%),
+            rgb(15 23 42 / 35%)
+        );
     content: "";
+    pointer-events: none;
 }
 
 .auth-visual img {
