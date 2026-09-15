@@ -1,18 +1,38 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kado - Home</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
 </head>
-<body>
-    <h2>Kado - Home Screen</h2>
+<body class="home-page">
+    <header class="site-header">
+        <a href="{% url 'home' %}" class="site-logo" aria-label="Kado home">
+            <img src="{% static 'img/logo.png' %}" alt="Kado logo">
+        </a>
 
-    {% if user.is_authenticated %}
-        <h4>Login Credential</h4>
-        <p>Email: {{user.email}}</p>
-    {% else %}
-        <p>Not logged in</p>
-    {% endif %}
+        <details class="profile-menu">
+            <summary aria-label="Open profile menu">
+                <img src="{% static 'img/profile-temp.png' %}" alt="Profile">
+            </summary>
+            <nav class="profile-dropdown" aria-label="Profile menu">
+                <a href="{% url 'profile' %}">Profile</a>
+                <a href="{% url 'settings' %}">Settings</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Log Out</button>
+                </form>
+            </nav>
+        </details>
+    </header>
+
+    <main class="construction-state">
+        <img src="{% static 'img/under-construction.png' %}" alt="">
+        <h1>Still a work in progress</h1>
+        <p>We are building something useful for you.</p>
+    </main>
 </body>
 </html>

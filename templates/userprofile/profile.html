@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kado - Profile</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body class="home-page">
+    <header class="site-header">
+        <a href="{% url 'home' %}" class="site-logo" aria-label="Kado home">
+            <img src="{% static 'img/logo.png' %}" alt="Kado logo">
+        </a>
+        <a class="back-link" href="{% url 'home' %}">Back home</a>
+    </header>
+    <main class="simple-page">
+        <p class="eyebrow">Your account</p>
+        <h1>Profile</h1>
+        <p>{{ request.user.email }}</p>
+    </main>
+</body>
+</html>

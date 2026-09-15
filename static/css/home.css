@@ -1,0 +1,161 @@
+* {
+    box-sizing: border-box;
+}
+
+.home-page {
+    min-height: 100vh;
+    margin: 0;
+    background: #f8fafc;
+    color: var(--color-navy);
+    font-family: var(--font-body);
+}
+
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 82px;
+    padding: 14px clamp(24px, 5vw, 72px);
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
+}
+
+.site-logo img {
+    display: block;
+    width: auto;
+    height: 52px;
+}
+
+.profile-menu {
+    position: relative;
+}
+
+.profile-menu summary {
+    display: block;
+    width: 48px;
+    height: 48px;
+    border: 2px solid #fed7aa;
+    border-radius: 50%;
+    cursor: pointer;
+    list-style: none;
+    overflow: hidden;
+}
+
+.profile-menu summary::-webkit-details-marker {
+    display: none;
+}
+
+.profile-menu summary img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    z-index: 2;
+    display: grid;
+    min-width: 170px;
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 14px 35px rgb(15 23 42 / 14%);
+}
+
+.profile-dropdown a,
+.profile-dropdown button {
+    display: block;
+    width: 100%;
+    padding: 11px 12px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--color-navy);
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.profile-dropdown a:hover,
+.profile-dropdown button:hover {
+    background: #fff7ed;
+    color: var(--color-amber);
+}
+
+.profile-dropdown form {
+    margin: 0;
+}
+
+.construction-state {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    min-height: calc(100vh - 82px);
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.construction-state img {
+    width: min(220px, 55vw);
+    height: auto;
+    margin-bottom: 24px;
+}
+
+.construction-state h1,
+.simple-page h1 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.construction-state p,
+.simple-page p {
+    margin: 12px 0 0;
+    color: #64748b;
+}
+
+.simple-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 80px 24px;
+}
+
+.eyebrow {
+    margin: 0 0 10px;
+    color: var(--color-amber);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.back-link {
+    color: var(--color-amber);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+@media (max-width: 520px) {
+    .site-header {
+        min-height: 72px;
+        padding: 12px 20px;
+    }
+
+    .site-logo img {
+        height: 44px;
+    }
+
+    .profile-menu summary {
+        width: 42px;
+        height: 42px;
+    }
+
+    .construction-state {
+        min-height: calc(100vh - 72px);
+    }
+}
