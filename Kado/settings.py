@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.home',
     'apps.settings',
     'apps.userprofile',
+    'apps.reports',
 ]
 
 MIDDLEWARE = [
