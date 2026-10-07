@@ -4,35 +4,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kado - Home</title>
+    <title>Kado - Cebu City Hazard Map</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
 </head>
 <body class="home-page">
-    <header class="site-header">
-        <a href="{% url 'home' %}" class="site-logo" aria-label="Kado home">
-            <img src="{% static 'img/logo.png' %}" alt="Kado logo">
-        </a>
+    <main class="map-home">
+        <div id="hazard-map" class="hazard-map" aria-label="Map of Cebu City"></div>
 
-        <details class="profile-menu">
-            <summary aria-label="Open profile menu">
-                <img src="{% static 'img/profile-temp.png' %}" alt="Profile">
-            </summary>
-            <nav class="profile-dropdown" aria-label="Profile menu">
-                <a href="{% url 'profile' %}">Profile</a>
-                <a href="{% url 'settings' %}">Settings</a>
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit">Log Out</button>
-                </form>
+        <header class="map-header">
+            <a href="{% url 'home' %}" class="map-brand" aria-label="Kado home">
+                <img src="{% static 'img/logo.png' %}" alt="">
+            </a>
+
+            <nav class="map-navigation" aria-label="Main navigation">
+                <a class="active" href="{% url 'home' %}" aria-current="page">Home</a>
+                <span class="nav-disabled" aria-disabled="true">Feed</span>
+                <label class="token-search">
+                    <span class="visually-hidden">Search token</span>
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <circle cx="10.8" cy="10.8" r="6.8"></circle>
+                        <path d="m16 16 4.5 4.5"></path>
+                    </svg>
+                    <input type="search" placeholder="Search Token">
+                </label>
             </nav>
-        </details>
-    </header>
 
-    <main class="construction-state">
-        <img src="{% static 'img/under-construction.png' %}" alt="">
-        <h1>Still a work in progress</h1>
-        <p>We are building something useful for you.</p>
+            <details class="profile-menu">
+                <summary aria-label="Open profile menu">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <circle cx="12" cy="8" r="3.5"></circle>
+                        <path d="M5.5 20c.5-3.5 2.8-5.5 6.5-5.5s6 2 6.5 5.5"></path>
+                    </svg>
+                </summary>
+                <nav class="profile-dropdown" aria-label="Profile menu">
+                    <a href="{% url 'profile' %}">Profile</a>
+                    <a href="{% url 'settings' %}">Settings</a>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit">Log Out</button>
+                    </form>
+                </nav>
+            </details>
+        </header>
     </main>
+
+    <script>
+        // Initialize centered on Cebu City (latitude: 10.3157, longitude: 123.8854)
+        const map = L.map('hazard-map').setView([10.3157, 123.8854], 13);
+
+        // Free CARTO Voyager tiles (no API key needed, won't trigger 403 blocks)
+        L.tileLayer('https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_4ct8_1_ccc1ae605722d49fc0aa6655', {
+            maxZoom: 19,
+            subdomains: 'abcd',
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        }).addTo(map);
+    </script>
 </body>
 </html>
