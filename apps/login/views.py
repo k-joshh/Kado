@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib import messages
 
-
 # Create your views here.
 User = get_user_model()
 
@@ -18,7 +17,11 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect('home')
+
+            if not (user.first_name and user.last_name and user.phone_number and user.barangay):
+                return redirect('setup')
+            else:
+                return redirect('home')
         else:
             messages.error(request, "Invalid email or password.")
 

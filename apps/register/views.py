@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, login
 from django.shortcuts import redirect, render
 
 User = get_user_model()
@@ -21,6 +21,7 @@ def register_view(request):
                 email=email,
                 password=password
             )
-            return redirect('login')
+            login(request, user)
+            return redirect('setup')
 
     return render(request, 'register/register.html')

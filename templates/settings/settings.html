@@ -13,7 +13,19 @@
         <a href="{% url 'home' %}" class="site-logo" aria-label="Kado home">
             <img src="{% static 'img/logo.png' %}" alt="Kado logo">
         </a>
-        <a class="back-link" href="{% url 'home' %}">Back home</a>
+        <details class="profile-menu">
+            <summary aria-label="Open profile menu">
+                <img src="{% static 'img/profile-temp.png' %}" alt="Profile">
+            </summary>
+            <nav class="profile-dropdown" aria-label="Profile menu">
+                <a href="{% url 'profile' %}">Profile</a>
+                <a href="{% url 'settings' %}">Settings</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Log Out</button>
+                </form>
+            </nav>
+        </details>
     </header>
     <main class="simple-page">
         <p class="eyebrow">Preferences</p>

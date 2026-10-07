@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kado - Complete Your Account</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
+    <main class="auth-page">
+        <section class="auth-panel">
+            <div class="auth-content">
+                <a href="{% url 'home' %}" class="brand">
+                    <img src="{% static 'img/logo.png' %}" alt="Kado logo">
+                </a>
+
+                <div class="auth-heading">
+                    <p class="eyebrow">One last step</p>
+                    <h1>Set Up Your Account</h1>
+                </div>
+
+                {% if messages %}
+                    <div class="form-messages">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'setup' %}" class="auth-form">
+                    {% csrf_token %}
+
+                    <div class="form-field">
+                        <label for="id_first_name">First Name</label>
+                        <input 
+                            id="id_first_name" 
+                            name="first_name" 
+                            type="text" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="id_last_name">Last Name</label>
+                        <input 
+                            id="id_last_name" 
+                            name="last_name" 
+                            type="text" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="id_phone_number">Phone Number</label>
+                        <input 
+                            id="id_phone_number" 
+                            name="phone_number" 
+                            type="tel" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="id_barangay">Barangay</label>
+                        <select id="id_barangay" name="barangay" required>
+                            <option value="" selected disabled>Select Barangay</option>
+                            {% for value, label in barangay_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit">Save</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="auth-visual">
+            <img src="{% static 'img/auth-bg1.jpg' %}" alt="">
+        </section>
+    </main>
+</body>
+</html>
