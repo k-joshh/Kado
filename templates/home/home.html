@@ -56,8 +56,18 @@
         </header>
 
         <aside class="map-sidebar" aria-label="Map actions">
-            <button type="button" class="map-sidebar-btn" aria-label="Recent reports in the past 24 hours" title="Recent reports (past 24h)">
-                <img src="{% static 'img/clipboard_dark.png' %}" alt="Recent reports">
+            <button
+                type="button"
+                id="btn-recent-reports"
+                class="map-sidebar-btn"
+                aria-label="Recent reports in the past 24 hours"
+                aria-expanded="false"
+                aria-controls="recent-reports-panel"
+                title="Recent reports (past 24h)"
+                data-icon-dark="{% static 'img/clipboard_dark.png' %}"
+                data-icon-light="{% static 'img/clipboard_light.png' %}"
+            >
+                <img id="clipboard-icon" src="{% static 'img/clipboard_dark.png' %}" alt="Recent reports">
             </button>
             <button type="button" class="map-sidebar-btn" aria-label="Filter pins" title="Filter pins">
                 <img src="{% static 'img/filter_dark.png' %}" alt="Filter pins">
@@ -66,6 +76,66 @@
                 <img src="{% static 'img/info_dark.png' %}" alt="Summary metrics">
             </button>
         </aside>
+
+        <!-- Recent Reports Flyout Panel -->
+        <section
+            id="recent-reports-panel"
+            class="map-flyout-panel"
+            aria-labelledby="recent-reports-heading"
+            aria-hidden="true"
+        >
+            <div class="flyout-header">
+                <div>
+                    <h2 id="recent-reports-heading" class="flyout-title">Recent Reports</h2>
+                    <p class="flyout-subtitle">Reports within the last 24 hours</p>
+                </div>
+                <button type="button" id="btn-close-reports" class="flyout-close-btn" aria-label="Close recent reports">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flyout-content">
+                {% if recent_reports %}
+                    <div class="reports-list">
+                        {% for report in recent_reports %}
+                            <article
+                                class="report-card"
+                                data-lat="{{ report.latitude }}"
+                                data-lng="{{ report.longitude }}"
+                                data-token="{{ report.tracking_token }}"
+                                tabindex="0"
+                                role="button"
+                                aria-label="View {{ report.title }} on map"
+                            >
+                                <div class="report-thumb">
+                                    {% if report.hazard_photo %}
+                                        <img src="{{ report.hazard_photo.url }}" alt="{{ report.title }}">
+                                    {% else %}
+                                        <div class="report-thumb-placeholder">
+                                            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="6" y="6" width="36" height="36" rx="8" />
+                                                <circle cx="16" cy="16" r="3" />
+                                                <path d="M6 34l12-12 10 10 8-8 6 6" />
+                                            </svg>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="report-body">
+                                    <h3 class="report-title">{{ report.title }}</h3>
+                                    <p class="report-desc">{{ report.description|truncatechars:55 }}</p>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="reports-empty">
+                        <p class="empty-message">There aren't any reports recently.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
     </main>
 
     <script>
@@ -80,6 +150,78 @@
             subdomains: 'abcd',
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         }).addTo(map);
+
+        // Recent Reports Flyout Panel Logic
+        const recentReportsBtn = document.getElementById('btn-recent-reports');
+        const recentReportsPanel = document.getElementById('recent-reports-panel');
+        const closeReportsBtn = document.getElementById('btn-close-reports');
+        const clipboardIcon = document.getElementById('clipboard-icon');
+
+        function toggleRecentReports(forceState) {
+            if (!recentReportsPanel || !recentReportsBtn) return;
+
+            const isOpen = forceState !== undefined 
+                ? forceState 
+                : !recentReportsPanel.classList.contains('is-open');
+
+            recentReportsPanel.classList.toggle('is-open', isOpen);
+            recentReportsPanel.setAttribute('aria-hidden', (!isOpen).toString());
+            recentReportsBtn.classList.toggle('is-active', isOpen);
+            recentReportsBtn.setAttribute('aria-expanded', isOpen.toString());
+
+            if (clipboardIcon) {
+                const darkSrc = recentReportsBtn.dataset.iconDark;
+                const lightSrc = recentReportsBtn.dataset.iconLight;
+                clipboardIcon.src = isOpen ? lightSrc : darkSrc;
+            }
+        }
+
+        if (recentReportsBtn) {
+            recentReportsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleRecentReports();
+            });
+        }
+
+        if (closeReportsBtn) {
+            closeReportsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleRecentReports(false);
+            });
+        }
+
+        // Close when pressing Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && recentReportsPanel && recentReportsPanel.classList.contains('is-open')) {
+                toggleRecentReports(false);
+            }
+        });
+
+        // Close when clicking anywhere outside the panel or sidebar
+        document.addEventListener('click', (e) => {
+            if (
+                recentReportsPanel &&
+                recentReportsPanel.classList.contains('is-open') &&
+                !recentReportsPanel.contains(e.target) &&
+                !recentReportsBtn.contains(e.target)
+            ) {
+                toggleRecentReports(false);
+            }
+        });
+
+        // Click report card to smoothly pan the map to report location
+        document.querySelectorAll('.report-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const lat = parseFloat(card.dataset.lat);
+                const lng = parseFloat(card.dataset.lng);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    map.flyTo([lat, lng], 16, { duration: 1.2 });
+                    if (window.innerWidth <= 520) {
+                        toggleRecentReports(false);
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>

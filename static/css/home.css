@@ -264,6 +264,200 @@
     pointer-events: none;
 }
 
+/* Active state for sidebar buttons */
+.map-sidebar-btn.is-active {
+    background: #0f172a !important;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 30%);
+}
+
+.map-sidebar-btn.is-active:hover {
+    background: #1e293b !important;
+}
+
+/* Map Flyout Panel (Recent Reports) */
+.map-flyout-panel {
+    position: absolute;
+    top: 110px;
+    left: 150px;
+    z-index: 550;
+    width: 360px;
+    max-width: calc(100vw - 120px);
+    max-height: calc(100vh - 150px);
+    background: #ffffff;
+    border-radius: 28px;
+    box-shadow: 0 16px 45px -8px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-16px) scale(0.98);
+    transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.map-flyout-panel.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0) scale(1);
+}
+
+.flyout-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 4px;
+}
+
+.flyout-title {
+    margin: 0 0 4px;
+    color: #0f172a;
+    font-family: var(--font-heading);
+    font-size: 1.55rem;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.flyout-subtitle {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+.flyout-close-btn {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #64748b;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    flex-shrink: 0;
+}
+
+.flyout-close-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.flyout-close-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.flyout-content {
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-right: -4px;
+    flex: 1 1 auto;
+}
+
+.reports-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.report-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px;
+    border-radius: 16px;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s ease;
+}
+
+.report-card:hover,
+.report-card:focus-visible {
+    background: #f8fafc;
+    outline: none;
+}
+
+.report-thumb {
+    width: 68px;
+    height: 68px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    border: 2px solid #0f172a;
+    background: #ffffff;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+.report-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.report-thumb-placeholder {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    color: #0f172a;
+}
+
+.report-thumb-placeholder svg {
+    width: 38px;
+    height: 38px;
+}
+
+.report-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.report-title {
+    margin: 0;
+    color: #0f172a;
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.report-desc {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.825rem;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.reports-empty {
+    padding: 40px 16px;
+    text-align: center;
+    color: #64748b;
+}
+
+.empty-message {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
 .visually-hidden {
     position: absolute;
     width: 1px;
@@ -332,6 +526,10 @@
     .map-sidebar {
         left: 20px;
     }
+
+    .map-flyout-panel {
+        left: 80px;
+    }
 }
 
 @media (max-width: 520px) {
@@ -385,5 +583,17 @@
     .map-sidebar-btn img {
         width: 20px;
         height: 20px;
+    }
+
+    .map-flyout-panel {
+        top: auto;
+        bottom: 20px;
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-width: none;
+        max-height: 55vh;
+        border-radius: 24px;
+        padding: 20px 18px;
     }
 }
