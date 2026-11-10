@@ -54,11 +54,25 @@
                 </nav>
             </details>
         </header>
+
+        <aside class="map-sidebar" aria-label="Map actions">
+            <button type="button" class="map-sidebar-btn" aria-label="Recent reports in the past 24 hours" title="Recent reports (past 24h)">
+                <img src="{% static 'img/clipboard_dark.png' %}" alt="Recent reports">
+            </button>
+            <button type="button" class="map-sidebar-btn" aria-label="Filter pins" title="Filter pins">
+                <img src="{% static 'img/filter_dark.png' %}" alt="Filter pins">
+            </button>
+            <button type="button" class="map-sidebar-btn" aria-label="Summary metrics and info" title="Summary metrics">
+                <img src="{% static 'img/info_dark.png' %}" alt="Summary metrics">
+            </button>
+        </aside>
     </main>
 
     <script>
         // Initialize centered on Cebu City
-        const map = L.map('hazard-map').setView([10.3157, 123.8854], 13);
+        const map = L.map('hazard-map', {
+            zoomControl: false,
+        }).setView([10.3157, 123.8854], 13);
 
         // Free CARTO Voyager tiles (no API key needed)
         L.tileLayer('https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_4ct8_1_ccc1ae605722d49fc0aa6655', {
