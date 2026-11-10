@@ -6,31 +6,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kado - Settings</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
 </head>
-<body class="home-page">
+<body class="app-page">
     <header class="site-header">
         <a href="{% url 'home' %}" class="site-logo" aria-label="Kado home">
             <img src="{% static 'img/logo.png' %}" alt="Kado logo">
         </a>
-        <details class="profile-menu">
-            <summary aria-label="Open profile menu">
-                <img src="{% static 'img/profile-temp.png' %}" alt="Profile">
-            </summary>
-            <nav class="profile-dropdown" aria-label="Profile menu">
-                <a href="{% url 'profile' %}">Profile</a>
-                <a href="{% url 'settings' %}">Settings</a>
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit">Log Out</button>
-                </form>
-            </nav>
-        </details>
+        <div class="header-actions">
+            <a href="{% url 'home' %}" class="nav-back-link">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Back to Map</span>
+            </a>
+            <details class="profile-menu">
+                <summary aria-label="Open profile menu">
+                    <img src="{% static 'img/profile-temp.png' %}" alt="Profile">
+                </summary>
+                <nav class="profile-dropdown" aria-label="Profile menu">
+                    <a href="{% url 'profile' %}">Profile</a>
+                    <a href="{% url 'settings' %}">Settings</a>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit">Log Out</button>
+                    </form>
+                </nav>
+            </details>
+        </div>
     </header>
+
     <main class="simple-page">
-        <p class="eyebrow">Preferences</p>
-        <h1>Settings</h1>
-        <p>Settings are coming soon.</p>
+        <div class="page-header">
+            <p class="eyebrow">Preferences</p>
+            <h1>Settings</h1>
+            <p class="page-subtitle">Manage your account preferences and application settings.</p>
+        </div>
+
+        <section class="page-card">
+            <div class="card-header">
+                <h2 class="card-title">Account Preferences</h2>
+            </div>
+            <div class="settings-list">
+                <div class="settings-item">
+                    <div class="settings-meta">
+                        <h3>Profile Information</h3>
+                        <p>Your registered name, phone number, and barangay location.</p>
+                    </div>
+                    <a href="{% url 'profile' %}" class="btn-secondary">View Profile</a>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-meta">
+                        <h3>Hazard Notifications</h3>
+                        <p>Receive updates when reported hazards in your barangay change status.</p>
+                    </div>
+                    <button type="button" class="btn-secondary" disabled title="Coming soon">Enabled</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="page-card">
+            <div class="card-header">
+                <h2 class="card-title">Session & Security</h2>
+            </div>
+            <div class="settings-list">
+                <div class="settings-item">
+                    <div class="settings-meta">
+                        <h3>Sign Out</h3>
+                        <p>Log out of your current session on this device.</p>
+                    </div>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-secondary btn-danger">Log Out</button>
+                    </form>
+                </div>
+            </div>
+        </section>
     </main>
 </body>
 </html>

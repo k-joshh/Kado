@@ -6,31 +6,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kado - Profile</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
 </head>
-<body class="home-page">
+<body class="app-page">
     <header class="site-header">
         <a href="{% url 'home' %}" class="site-logo" aria-label="Kado home">
             <img src="{% static 'img/logo.png' %}" alt="Kado logo">
         </a>
-        <details class="profile-menu">
-            <summary aria-label="Open profile menu">
-                <img src="{% static 'img/profile-temp.png' %}" alt="Profile">
-            </summary>
-            <nav class="profile-dropdown" aria-label="Profile menu">
-                <a href="{% url 'profile' %}">Profile</a>
-                <a href="{% url 'settings' %}">Settings</a>
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit">Log Out</button>
-                </form>
-            </nav>
-        </details>
+        <div class="header-actions">
+            <a href="{% url 'home' %}" class="nav-back-link">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Back to Map</span>
+            </a>
+            <details class="profile-menu">
+                <summary aria-label="Open profile menu">
+                    <img src="{% static 'img/profile-temp.png' %}" alt="Profile">
+                </summary>
+                <nav class="profile-dropdown" aria-label="Profile menu">
+                    <a href="{% url 'profile' %}">Profile</a>
+                    <a href="{% url 'settings' %}">Settings</a>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit">Log Out</button>
+                    </form>
+                </nav>
+            </details>
+        </div>
     </header>
+
     <main class="simple-page">
-        <p class="eyebrow">Your account</p>
-        <h1>Profile</h1>
-        <p>{{ request.user.email }}</p>
+        <div class="page-header">
+            <p class="eyebrow">Your Account</p>
+            <h1>Profile</h1>
+            <p class="page-subtitle">View your registered details and community standing.</p>
+        </div>
+
+        <section class="page-card">
+            <div class="profile-hero">
+                <div class="profile-avatar-large">
+                    <img src="{% static 'img/profile-temp.png' %}" alt="Profile avatar">
+                </div>
+                <div class="profile-hero-meta">
+                    <h2>
+                        {% if request.user.first_name or request.user.last_name %}
+                            {{ request.user.first_name }} {{ request.user.last_name }}
+                        {% else %}
+                            {{ request.user.email }}
+                        {% endif %}
+                    </h2>
+                    <p>{{ request.user.email }}</p>
+                    {% if request.user.is_lgu_staff %}
+                        <span class="role-badge staff">LGU Staff</span>
+                    {% else %}
+                        <span class="role-badge resident">Cebu Resident</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-header">
+                <h3 class="card-title">Personal Information</h3>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">
+                        {% if request.user.first_name or request.user.last_name %}
+                            {{ request.user.first_name }} {{ request.user.last_name }}
+                        {% else %}
+                            Not set
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email Address</span>
+                    <span class="info-value">{{ request.user.email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone Number</span>
+                    <span class="info-value">{{ request.user.phone_number|default:"Not set" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Registered Barangay</span>
+                    <span class="info-value">{{ request.user.barangay|default:"Not set" }}</span>
+                </div>
+            </div>
+        </section>
     </main>
 </body>
 </html>

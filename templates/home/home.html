@@ -57,10 +57,10 @@
     </main>
 
     <script>
-        // Initialize centered on Cebu City (latitude: 10.3157, longitude: 123.8854)
+        // Initialize centered on Cebu City
         const map = L.map('hazard-map').setView([10.3157, 123.8854], 13);
 
-        // Free CARTO Voyager tiles (no API key needed, won't trigger 403 blocks)
+        // Free CARTO Voyager tiles (no API key needed)
         L.tileLayer('https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_4ct8_1_ccc1ae605722d49fc0aa6655', {
             maxZoom: 19,
             subdomains: 'abcd',
