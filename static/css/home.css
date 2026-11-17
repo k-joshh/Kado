@@ -458,6 +458,227 @@
     line-height: 1.5;
 }
 
+/* Filter Reports Panel Styles */
+.filter-section {
+    margin-bottom: 24px;
+}
+
+.filter-section:last-child {
+    margin-bottom: 8px;
+}
+
+.filter-section-title {
+    margin: 0 0 10px;
+    color: #0f172a;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.status-filter-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.filter-badge-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0f172a;
+    border: 2px solid transparent;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+    outline: none;
+    font-family: inherit;
+}
+
+.filter-badge-status:hover {
+    transform: scale(1.02);
+}
+
+.filter-badge-status:active {
+    transform: scale(0.98);
+}
+
+/* Submitted: EA580C 50% opacity */
+.filter-badge-status.status-submitted {
+    background-color: rgba(234, 88, 12, 0.5);
+}
+
+/* Scheduled for Inspection: 3B82F6 50% opacity */
+.filter-badge-status.status-scheduled {
+    background-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Resolved: 10B981 50% opacity */
+.filter-badge-status.status-resolved {
+    background-color: rgba(16, 185, 129, 0.5);
+}
+
+/* Status badge selected state: black outline and drop shadow */
+.filter-badge-status.is-selected {
+    border-color: #000000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.tags-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Tag filter badges: D8D8D8 50% opacity */
+.filter-badge-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #0f172a;
+    background-color: rgba(216, 216, 216, 0.5);
+    border: 2px solid transparent;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    outline: none;
+    font-family: inherit;
+}
+
+.filter-badge-tag:hover {
+    transform: scale(1.02);
+}
+
+.filter-badge-tag:active {
+    transform: scale(0.98);
+}
+
+/* Tag badge selected state: black with white text */
+.filter-badge-tag.is-selected {
+    background-color: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+
+/* Custom Leaflet Map Pins */
+.hazard-pin-container {
+    background: transparent;
+    border: none;
+}
+
+.hazard-map-pin {
+    width: 28px;
+    height: 36px;
+    position: relative;
+    cursor: pointer;
+    filter: drop-shadow(0 3px 6px rgba(15, 23, 42, 0.35));
+    transition: transform 0.15s ease;
+}
+
+.hazard-map-pin:hover {
+    transform: scale(1.18);
+}
+
+.hazard-pin-shape {
+    width: 26px;
+    height: 26px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background-color: var(--pin-color, #EA580C);
+    border: 2px solid #ffffff;
+    position: absolute;
+    top: 0;
+    left: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hazard-pin-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    transform: rotate(45deg);
+}
+
+/* Leaflet Popup enhancements */
+.leaflet-popup-content-wrapper {
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+    padding: 2px;
+}
+
+.hazard-popup-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 6px;
+    font-family: var(--font-body);
+}
+
+.hazard-popup-status {
+    align-self: flex-start;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.725rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.hazard-popup-status.status-SUBMITTED {
+    background: rgba(234, 88, 12, 0.18);
+    color: #c2410c;
+}
+
+.hazard-popup-status.status-SCHEDULED {
+    background: rgba(59, 130, 246, 0.18);
+    color: #1d4ed8;
+}
+
+.hazard-popup-status.status-RESOLVED {
+    background: rgba(16, 185, 129, 0.18);
+    color: #047857;
+}
+
+.hazard-popup-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.25;
+}
+
+.hazard-popup-desc {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.8rem;
+    line-height: 1.35;
+}
+
+.hazard-popup-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 2px;
+}
+
+.hazard-popup-tag {
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 0.725rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 500;
+}
+
 .visually-hidden {
     position: absolute;
     width: 1px;

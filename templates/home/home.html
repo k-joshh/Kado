@@ -69,13 +69,92 @@
             >
                 <img id="clipboard-icon" src="{% static 'img/clipboard_dark.png' %}" alt="Recent reports">
             </button>
-            <button type="button" class="map-sidebar-btn" aria-label="Filter pins" title="Filter pins">
-                <img src="{% static 'img/filter_dark.png' %}" alt="Filter pins">
+            <button
+                type="button"
+                id="btn-filter-reports"
+                class="map-sidebar-btn"
+                aria-label="Filter pins"
+                aria-expanded="false"
+                aria-controls="filter-reports-panel"
+                title="Filter pins"
+                data-icon-dark="{% static 'img/filter_dark.png' %}"
+                data-icon-light="{% static 'img/filter_light.png' %}"
+            >
+                <img id="filter-icon" src="{% static 'img/filter_dark.png' %}" alt="Filter pins">
             </button>
             <button type="button" class="map-sidebar-btn" aria-label="Summary metrics and info" title="Summary metrics">
                 <img src="{% static 'img/info_dark.png' %}" alt="Summary metrics">
             </button>
         </aside>
+
+        <!-- Filter Reports Flyout Panel -->
+        <section
+            id="filter-reports-panel"
+            class="map-flyout-panel"
+            aria-labelledby="filter-reports-heading"
+            aria-hidden="true"
+        >
+            <div class="flyout-header">
+                <div>
+                    <h2 id="filter-reports-heading" class="flyout-title">Filter Reports</h2>
+                </div>
+                <button type="button" id="btn-close-filter" class="flyout-close-btn" aria-label="Close filters">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flyout-content">
+                <div class="filter-section">
+                    <h3 class="filter-section-title">Status</h3>
+                    <div class="status-filter-group">
+                        <button
+                            type="button"
+                            class="filter-badge-status status-submitted"
+                            data-status="SUBMITTED"
+                            aria-pressed="false"
+                        >
+                            Submitted
+                        </button>
+                        <button
+                            type="button"
+                            class="filter-badge-status status-scheduled"
+                            data-status="SCHEDULED"
+                            aria-pressed="false"
+                        >
+                            Scheduled for Inspection
+                        </button>
+                        <button
+                            type="button"
+                            class="filter-badge-status status-resolved"
+                            data-status="RESOLVED"
+                            aria-pressed="false"
+                        >
+                            Resolved
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3 class="filter-section-title">Tags</h3>
+                    <div class="tags-filter-group">
+                        {% for tag in tags %}
+                            <button
+                                type="button"
+                                class="filter-badge-tag"
+                                data-tag="{{ tag.name }}"
+                                aria-pressed="false"
+                            >
+                                {{ tag.name }}
+                            </button>
+                        {% empty %}
+                            <span class="empty-message">No tags available</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- Recent Reports Flyout Panel -->
         <section
@@ -138,6 +217,8 @@
         </section>
     </main>
 
+    {{ reports_data|json_script:"hazard-reports-data" }}
+
     <script>
         // Initialize centered on Cebu City
         const map = L.map('hazard-map', {
@@ -151,6 +232,117 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         }).addTo(map);
 
+        // Data and Leaflet Markers
+        const reportsDataElement = document.getElementById('hazard-reports-data');
+        const reportsData = reportsDataElement ? JSON.parse(reportsDataElement.textContent) : [];
+        const markerMap = new Map();
+
+        const statusColors = {
+            'SUBMITTED': '#EA580C',
+            'SCHEDULED': '#3B82F6',
+            'RESOLVED': '#10B981'
+        };
+
+        function createPinIcon(status) {
+            const color = statusColors[status] || '#EA580C';
+            return L.divIcon({
+                className: 'hazard-pin-container',
+                html: `
+                    <div class="hazard-map-pin">
+                        <div class="hazard-pin-shape" style="--pin-color: ${color};">
+                            <span class="hazard-pin-dot"></span>
+                        </div>
+                    </div>
+                `,
+                iconSize: [28, 36],
+                iconAnchor: [14, 36],
+                popupAnchor: [0, -32]
+            });
+        }
+
+        function createPopupContent(report) {
+            const tagsHtml = (report.tags || []).map(t => `<span class="hazard-popup-tag">#${t}</span>`).join('');
+            const photoHtml = report.photo_url ? `<img src="${report.photo_url}" style="width:100%; max-height:120px; object-fit:cover; border-radius:8px; margin-bottom:6px;" alt="${report.title}">` : '';
+
+            return `
+                <div class="hazard-popup-card">
+                    <span class="hazard-popup-status status-${report.status}">${report.status_display}</span>
+                    ${photoHtml}
+                    <h4 class="hazard-popup-title">${report.title}</h4>
+                    <p class="hazard-popup-desc">${report.description}</p>
+                    ${tagsHtml ? `<div class="hazard-popup-tags">${tagsHtml}</div>` : ''}
+                </div>
+            `;
+        }
+
+        // Initialize markers on map
+        reportsData.forEach(report => {
+            if (report.latitude && report.longitude) {
+                const marker = L.marker([report.latitude, report.longitude], {
+                    icon: createPinIcon(report.status)
+                });
+                marker.bindPopup(createPopupContent(report));
+                marker.addTo(map);
+                markerMap.set(report.id, { marker, report });
+            }
+        });
+
+        // Active filters state
+        const activeStatuses = new Set();
+        const activeTags = new Set();
+
+        function applyFilters() {
+            markerMap.forEach(({ marker, report }) => {
+                // If any status is selected, report must match one of the selected statuses
+                const statusMatch = activeStatuses.size === 0 || activeStatuses.has(report.status);
+
+                // If any tag is selected, report must match at least one of the selected tags
+                const tagMatch = activeTags.size === 0 || (report.tags && report.tags.some(t => activeTags.has(t)));
+
+                if (statusMatch && tagMatch) {
+                    if (!map.hasLayer(marker)) {
+                        marker.addTo(map);
+                    }
+                } else {
+                    if (map.hasLayer(marker)) {
+                        map.removeLayer(marker);
+                    }
+                }
+            });
+        }
+
+        // Status Badges Click
+        document.querySelectorAll('.filter-badge-status').forEach(badge => {
+            badge.addEventListener('click', () => {
+                const status = badge.dataset.status;
+                const isSelected = badge.classList.toggle('is-selected');
+                badge.setAttribute('aria-pressed', isSelected.toString());
+
+                if (isSelected) {
+                    activeStatuses.add(status);
+                } else {
+                    activeStatuses.delete(status);
+                }
+                applyFilters();
+            });
+        });
+
+        // Tag Badges Click
+        document.querySelectorAll('.filter-badge-tag').forEach(badge => {
+            badge.addEventListener('click', () => {
+                const tag = badge.dataset.tag;
+                const isSelected = badge.classList.toggle('is-selected');
+                badge.setAttribute('aria-pressed', isSelected.toString());
+
+                if (isSelected) {
+                    activeTags.add(tag);
+                } else {
+                    activeTags.delete(tag);
+                }
+                applyFilters();
+            });
+        });
+
         // Recent Reports Flyout Panel Logic
         const recentReportsBtn = document.getElementById('btn-recent-reports');
         const recentReportsPanel = document.getElementById('recent-reports-panel');
@@ -163,6 +355,10 @@
             const isOpen = forceState !== undefined 
                 ? forceState 
                 : !recentReportsPanel.classList.contains('is-open');
+
+            if (isOpen) {
+                toggleFilterReports(false);
+            }
 
             recentReportsPanel.classList.toggle('is-open', isOpen);
             recentReportsPanel.setAttribute('aria-hidden', (!isOpen).toString());
@@ -190,14 +386,62 @@
             });
         }
 
+        // Filter Reports Flyout Panel Logic
+        const filterReportsBtn = document.getElementById('btn-filter-reports');
+        const filterReportsPanel = document.getElementById('filter-reports-panel');
+        const closeFilterBtn = document.getElementById('btn-close-filter');
+        const filterIcon = document.getElementById('filter-icon');
+
+        function toggleFilterReports(forceState) {
+            if (!filterReportsPanel || !filterReportsBtn) return;
+
+            const isOpen = forceState !== undefined 
+                ? forceState 
+                : !filterReportsPanel.classList.contains('is-open');
+
+            if (isOpen) {
+                toggleRecentReports(false);
+            }
+
+            filterReportsPanel.classList.toggle('is-open', isOpen);
+            filterReportsPanel.setAttribute('aria-hidden', (!isOpen).toString());
+            filterReportsBtn.classList.toggle('is-active', isOpen);
+            filterReportsBtn.setAttribute('aria-expanded', isOpen.toString());
+
+            if (filterIcon) {
+                const darkSrc = filterReportsBtn.dataset.iconDark;
+                const lightSrc = filterReportsBtn.dataset.iconLight;
+                filterIcon.src = isOpen ? lightSrc : darkSrc;
+            }
+        }
+
+        if (filterReportsBtn) {
+            filterReportsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleFilterReports();
+            });
+        }
+
+        if (closeFilterBtn) {
+            closeFilterBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleFilterReports(false);
+            });
+        }
+
         // Close when pressing Escape key
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && recentReportsPanel && recentReportsPanel.classList.contains('is-open')) {
-                toggleRecentReports(false);
+            if (e.key === 'Escape') {
+                if (recentReportsPanel && recentReportsPanel.classList.contains('is-open')) {
+                    toggleRecentReports(false);
+                }
+                if (filterReportsPanel && filterReportsPanel.classList.contains('is-open')) {
+                    toggleFilterReports(false);
+                }
             }
         });
 
-        // Close when clicking anywhere outside the panel or sidebar
+        // Close when clicking anywhere outside the panels or sidebar buttons
         document.addEventListener('click', (e) => {
             if (
                 recentReportsPanel &&
@@ -206,6 +450,15 @@
                 !recentReportsBtn.contains(e.target)
             ) {
                 toggleRecentReports(false);
+            }
+
+            if (
+                filterReportsPanel &&
+                filterReportsPanel.classList.contains('is-open') &&
+                !filterReportsPanel.contains(e.target) &&
+                !filterReportsBtn.contains(e.target)
+            ) {
+                toggleFilterReports(false);
             }
         });
 
