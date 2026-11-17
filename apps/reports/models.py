@@ -1,9 +1,8 @@
 from django.db import models
 from django.conf import settings
 
-class HazardCategory(models.Model):
-    name = models.CharField(max_length=100)
-    assigned_office = models.CharField(max_length=150)
+class HazardTag(models.Model):
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
@@ -18,7 +17,7 @@ class HazardReport(models.Model):
 
     tracking_token = models.CharField(max_length=32, unique=True)
     reporter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reports')
-    category = models.ForeignKey(HazardCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='reports')
+    tags = models.ManyToManyField(HazardTag, blank=True, related_name='reports')
     title = models.CharField(max_length=150)
     description = models.TextField()
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
