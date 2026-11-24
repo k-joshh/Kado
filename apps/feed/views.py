@@ -82,7 +82,6 @@ def feed_view(request):
 
     return render(request, 'feed/feed.html', {
         'reports_data': reports_data,
-        'reports_json': json.dumps(reports_data),
     })
 
 

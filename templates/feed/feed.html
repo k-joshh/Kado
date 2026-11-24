@@ -280,13 +280,24 @@
     </div>
 
     <!-- Embedded Reports Data -->
-    {{ reports_json|json_script:"feed-reports-json-data" }}
+    {{ reports_data|json_script:"feed-reports-json-data" }}
 
     <script>
         // Data & state
         const rawDataEl = document.getElementById('feed-reports-json-data');
-        let reports = rawDataEl ? JSON.parse(rawDataEl.textContent) : [];
-        const reportsMap = new Map(reports.map(r => [r.id, r]));
+        let reports = [];
+        if (rawDataEl && rawDataEl.textContent) {
+            try {
+                let parsed = JSON.parse(rawDataEl.textContent);
+                if (typeof parsed === 'string') {
+                    parsed = JSON.parse(parsed);
+                }
+                reports = Array.isArray(parsed) ? parsed : [];
+            } catch (err) {
+                console.error('Error parsing feed reports data:', err);
+            }
+        }
+        const reportsMap = new Map(reports.map(r => [Number(r.id), r]));
 
         let currentModalReport = null;
         let currentModalImageIndex = 0;
@@ -327,8 +338,11 @@
         const modalUpdatesList = document.getElementById('modal-updates-list');
 
         function openModal(reportId) {
-            const report = reportsMap.get(parseInt(reportId));
-            if (!report) return;
+            const report = reportsMap.get(Number(reportId));
+            if (!report) {
+                console.warn('Report not found for ID:', reportId);
+                return;
+            }
 
             currentModalReport = report;
             currentModalImageIndex = 0;
@@ -499,17 +513,25 @@
 
         // Delegate Feed click events
         document.getElementById('reports-feed-list').addEventListener('click', (e) => {
+            const upvoteBtn = e.target.closest('.btn-upvote');
+            if (upvoteBtn) {
+                e.stopPropagation();
+                const reportId = parseInt(upvoteBtn.dataset.reportId);
+                triggerUpvote(reportId);
+                return;
+            }
+
             const seeUpdatesBtn = e.target.closest('.btn-see-updates');
             if (seeUpdatesBtn) {
+                e.stopPropagation();
                 const reportId = seeUpdatesBtn.dataset.reportId;
                 openModal(reportId);
                 return;
             }
 
-            const upvoteBtn = e.target.closest('.btn-upvote');
-            if (upvoteBtn) {
-                const reportId = parseInt(upvoteBtn.dataset.reportId);
-                triggerUpvote(reportId);
+            const card = e.target.closest('.feed-report-card');
+            if (card) {
+                openModal(card.dataset.id);
                 return;
             }
         });
