@@ -11,89 +11,213 @@
 <body class="app-page">
     <header class="site-header">
         <a href="{% url 'home' %}" class="site-logo" aria-label="Kado home">
-            <img src="{% static 'img/logo.png' %}" alt="Kado logo">
+            <img src="{% static 'img/logo.png' %}" alt="Kado">
         </a>
-        <div class="header-actions">
-            <a href="{% url 'home' %}" class="nav-back-link">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <nav class="map-navigation" aria-label="Main navigation">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'feed' %}">Feed</a>
+            <label class="token-search">
+                <span class="visually-hidden">Search token</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="10.8" cy="10.8" r="6.8"></circle>
+                    <path d="m16 16 4.5 4.5"></path>
                 </svg>
-                <span>Back to Map</span>
-            </a>
-            <details class="profile-menu">
-                <summary aria-label="Open profile menu">
-                    <img src="{% static 'img/profile-temp.png' %}" alt="Profile">
-                </summary>
-                <nav class="profile-dropdown" aria-label="Profile menu">
-                    <a href="{% url 'profile' %}">Profile</a>
-                    <a href="{% url 'settings' %}">Settings</a>
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit">Log Out</button>
-                    </form>
-                </nav>
-            </details>
-        </div>
+                <input type="search" placeholder="Search Token">
+            </label>
+        </nav>
+
+        <details class="profile-menu">
+            <summary aria-label="Open profile menu">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="3.5"></circle>
+                    <path d="M5.5 20c.5-3.5 2.8-5.5 6.5-5.5s6 2 6.5 5.5"></path>
+                </svg>
+            </summary>
+            <nav class="profile-dropdown" aria-label="Profile menu">
+                <a href="{% url 'profile' %}">Profile</a>
+                <a href="{% url 'settings' %}">Settings</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Log Out</button>
+                </form>
+            </nav>
+        </details>
     </header>
 
-    <main class="simple-page">
-        <div class="page-header">
-            <p class="eyebrow">Your Account</p>
+    <main class="profile-page-main">
+        <div class="profile-page-header">
             <h1>Profile</h1>
-            <p class="page-subtitle">View your registered details and community standing.</p>
         </div>
 
-        <section class="page-card">
-            <div class="profile-hero">
-                <div class="profile-avatar-large">
-                    <img src="{% static 'img/profile-temp.png' %}" alt="Profile avatar">
-                </div>
-                <div class="profile-hero-meta">
-                    <h2>
-                        {% if request.user.first_name or request.user.last_name %}
-                            {{ request.user.first_name }} {{ request.user.last_name }}
-                        {% else %}
-                            {{ request.user.email }}
-                        {% endif %}
-                    </h2>
-                    <p>{{ request.user.email }}</p>
-                    {% if request.user.is_lgu_staff %}
-                        <span class="role-badge staff">LGU Staff</span>
-                    {% else %}
-                        <span class="role-badge resident">Cebu Resident</span>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="profile-grid-layout">
+            <!-- Left Column: Personal Information (Sticky, stays still during scroll) -->
+            <aside class="profile-col-personal">
+                <section class="page-card profile-card">
+                    <div class="profile-hero">
+                        <div class="profile-avatar-large">
+                            <img src="{% static 'img/profile-temp.png' %}" alt="Profile avatar">
+                        </div>
+                        <div class="profile-hero-meta">
+                            <h2>
+                                {% if request.user.first_name or request.user.last_name %}
+                                    {{ request.user.first_name }} {{ request.user.last_name }}
+                                {% else %}
+                                    {{ request.user.email }}
+                                {% endif %}
+                            </h2>
+                            <p>{{ request.user.email }}</p>
+                            {% if request.user.is_lgu_staff %}
+                                <span class="role-badge staff">LGU Staff</span>
+                            {% else %}
+                                <span class="role-badge resident">Cebu Resident</span>
+                            {% endif %}
+                        </div>
+                    </div>
 
-            <div class="card-header">
-                <h3 class="card-title">Personal Information</h3>
-            </div>
+                    <div class="card-header">
+                        <h3 class="card-title">Personal Information</h3>
+                    </div>
 
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Full Name</span>
-                    <span class="info-value">
-                        {% if request.user.first_name or request.user.last_name %}
-                            {{ request.user.first_name }} {{ request.user.last_name }}
-                        {% else %}
-                            Not set
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Full Name</span>
+                            <span class="info-value">
+                                {% if request.user.first_name or request.user.last_name %}
+                                    {{ request.user.first_name }} {{ request.user.last_name }}
+                                {% else %}
+                                    Not set
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email Address</span>
+                            <span class="info-value">{{ request.user.email }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Phone Number</span>
+                            <span class="info-value">{{ request.user.phone_number|default:"Not set" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Registered Barangay</span>
+                            <span class="info-value">{{ request.user.barangay|default:"Not set" }}</span>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+
+            <!-- Right Column: My Reports (Independently Scrollable) -->
+            <section class="profile-col-reports">
+                <div class="page-card my-reports-panel">
+                    <div class="card-header my-reports-header">
+                        <div class="reports-header-title-wrap">
+                            <h3 class="card-title">My Reports</h3>
+                            <span class="reports-counter-pill">{{ reports_count }}</span>
+                        </div>
+                        {% if reports_count > 0 %}
+                        <a href="{% url 'submit_report' %}" class="btn-create-report">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            <span>New Report</span>
+                        </a>
                         {% endif %}
-                    </span>
+                    </div>
+
+                    <div class="my-reports-list-scroll">
+                        {% if my_reports %}
+                            {% for report in my_reports %}
+                            <article class="user-report-card">
+                                <div class="report-status-stripe" style="background-color: {{ report.status_color }};"></div>
+
+                                <div class="user-report-content">
+                                    <div class="user-report-header">
+                                        <div class="report-title-meta">
+                                            <h4 class="user-report-title">{{ report.title }}</h4>
+                                            <span class="user-report-token">{{ report.tracking_token }}</span>
+                                        </div>
+                                        <span class="user-report-status-badge status-{{ report.status|lower }}">{{ report.status_display }}</span>
+                                    </div>
+
+                                    <div class="user-report-body">
+                                        <div class="user-report-thumb">
+                                            {% if report.first_image %}
+                                                <img src="{{ report.first_image }}" alt="{{ report.title }}">
+                                            {% else %}
+                                                <div class="report-thumb-placeholder-svg">
+                                                    <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <rect width="160" height="120" rx="8" fill="#F1F5F9"/>
+                                                        <circle cx="36" cy="74" r="8" fill="#CBD5E1"/>
+                                                        <path d="M0 102 C30 90, 50 110, 80 94 C110 78, 130 92, 160 84 L160 120 L0 120 Z" fill="#CBD5E1"/>
+                                                    </svg>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="user-report-details">
+                                            {% if report.location_name %}
+                                            <div class="user-report-loc">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/>
+                                                    <circle cx="12" cy="10" r="3"/>
+                                                </svg>
+                                                <span>{{ report.location_name }}</span>
+                                            </div>
+                                            {% endif %}
+
+                                            <p class="user-report-desc">{{ report.description }}</p>
+
+                                            {% if report.tags %}
+                                            <div class="user-report-tags">
+                                                {% for tag in report.tags %}
+                                                <span class="user-report-tag">#{{ tag }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="user-report-footer">
+                                        <span class="user-report-date">{{ report.created_at_formatted }}</span>
+                                        <div class="user-report-stats">
+                                            <span class="stat-item" title="Upvotes">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                                </svg>
+                                                {{ report.upvotes_count }}
+                                            </span>
+                                            <span class="stat-item" title="Updates">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                                </svg>
+                                                {{ report.updates_count }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                            {% endfor %}
+                        {% else %}
+                            <div class="my-reports-empty-state">
+                                <div class="empty-icon-circle">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <polyline points="10 9 9 9 8 9"></polyline>
+                                    </svg>
+                                </div>
+                                <h3>No reports submitted yet</h3>
+                                <p>When you report civic hazards or infrastructure issues, they will appear here so you can monitor inspections and resolution progress.</p>
+                                <a href="{% url 'submit_report' %}" class="btn-submit-first-report">Submit a Report</a>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="info-item">
-                    <span class="info-label">Email Address</span>
-                    <span class="info-value">{{ request.user.email }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Phone Number</span>
-                    <span class="info-value">{{ request.user.phone_number|default:"Not set" }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Registered Barangay</span>
-                    <span class="info-value">{{ request.user.barangay|default:"Not set" }}</span>
-                </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </main>
 </body>
 </html>

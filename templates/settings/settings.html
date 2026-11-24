@@ -11,29 +11,38 @@
 <body class="app-page">
     <header class="site-header">
         <a href="{% url 'home' %}" class="site-logo" aria-label="Kado home">
-            <img src="{% static 'img/logo.png' %}" alt="Kado logo">
+            <img src="{% static 'img/logo.png' %}" alt="Kado">
         </a>
-        <div class="header-actions">
-            <a href="{% url 'home' %}" class="nav-back-link">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <nav class="map-navigation" aria-label="Main navigation">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'feed' %}">Feed</a>
+            <label class="token-search">
+                <span class="visually-hidden">Search token</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="10.8" cy="10.8" r="6.8"></circle>
+                    <path d="m16 16 4.5 4.5"></path>
                 </svg>
-                <span>Back to Map</span>
-            </a>
-            <details class="profile-menu">
-                <summary aria-label="Open profile menu">
-                    <img src="{% static 'img/profile-temp.png' %}" alt="Profile">
-                </summary>
-                <nav class="profile-dropdown" aria-label="Profile menu">
-                    <a href="{% url 'profile' %}">Profile</a>
-                    <a href="{% url 'settings' %}">Settings</a>
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit">Log Out</button>
-                    </form>
-                </nav>
-            </details>
-        </div>
+                <input type="search" placeholder="Search Token">
+            </label>
+        </nav>
+
+        <details class="profile-menu">
+            <summary aria-label="Open profile menu">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="3.5"></circle>
+                    <path d="M5.5 20c.5-3.5 2.8-5.5 6.5-5.5s6 2 6.5 5.5"></path>
+                </svg>
+            </summary>
+            <nav class="profile-dropdown" aria-label="Profile menu">
+                <a href="{% url 'profile' %}">Profile</a>
+                <a href="{% url 'settings' %}">Settings</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Log Out</button>
+                </form>
+            </nav>
+        </details>
     </header>
 
     <main class="simple-page">
@@ -54,13 +63,6 @@
                         <p>Your registered name, phone number, and barangay location.</p>
                     </div>
                     <a href="{% url 'profile' %}" class="btn-secondary">View Profile</a>
-                </div>
-                <div class="settings-item">
-                    <div class="settings-meta">
-                        <h3>Hazard Notifications</h3>
-                        <p>Receive updates when reported hazards in your barangay change status.</p>
-                    </div>
-                    <button type="button" class="btn-secondary" disabled title="Coming soon">Enabled</button>
                 </div>
             </div>
         </section>
