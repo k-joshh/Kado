@@ -10,14 +10,14 @@ def home_view(request):
     past_24h = timezone.now() - timedelta(hours=24)
     recent_reports = (
         HazardReport.objects.filter(created_at__gte=past_24h)
-        .prefetch_related('tags')
+        .prefetch_related('tags', 'images')
         .select_related('reporter')
         .order_by('-created_at')
     )
 
     all_reports = (
         HazardReport.objects.all()
-        .prefetch_related('tags')
+        .prefetch_related('tags', 'images')
         .select_related('reporter')
         .order_by('-created_at')
     )
@@ -34,7 +34,7 @@ def home_view(request):
             'latitude': float(r.latitude),
             'longitude': float(r.longitude),
             'tracking_token': r.tracking_token,
-            'photo_url': r.hazard_photo.url if r.hazard_photo else None,
+            'photo_url': r.hazard_photo.url if r.hazard_photo else (r.images.first().image.url if r.images.all() else None),
             'tags': [t.name for t in r.tags.all()],
             'created_at': r.created_at.strftime('%b %d, %Y %I:%M %p'),
         }
