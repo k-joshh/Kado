@@ -1,0 +1,591 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kado - Report Feed</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/feed.css' %}">
+</head>
+<body class="feed-page">
+    <header class="site-header">
+        <a href="{% url 'home' %}" class="site-logo" aria-label="Kado home">
+            <img src="{% static 'img/logo.png' %}" alt="Kado">
+        </a>
+
+        <nav class="map-navigation" aria-label="Main navigation">
+            <a href="{% url 'home' %}">Home</a>
+            <a class="active" href="{% url 'feed' %}" aria-current="page">Feed</a>
+            <label class="token-search">
+                <span class="visually-hidden">Search token</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="10.8" cy="10.8" r="6.8"></circle>
+                    <path d="m16 16 4.5 4.5"></path>
+                </svg>
+                <input type="search" id="feed-search-input" placeholder="Search Token">
+            </label>
+        </nav>
+
+        <details class="profile-menu">
+            <summary aria-label="Open profile menu">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="3.5"></circle>
+                    <path d="M5.5 20c.5-3.5 2.8-5.5 6.5-5.5s6 2 6.5 5.5"></path>
+                </svg>
+            </summary>
+            <nav class="profile-dropdown" aria-label="Profile menu">
+                <a href="{% url 'profile' %}">Profile</a>
+                <a href="{% url 'settings' %}">Settings</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Log Out</button>
+                </form>
+            </nav>
+        </details>
+    </header>
+
+    <div class="feed-layout-container">
+        <!-- Main Feed List -->
+        <main class="feed-main-content">
+            <h1 class="feed-page-title">Report Feed</h1>
+
+            <div id="reports-feed-list" class="reports-feed-list">
+                <!-- Dynamically rendered via JS or server rendered -->
+                {% for report in reports_data %}
+                <article class="feed-report-card" data-id="{{ report.id }}" data-status="{{ report.status }}" data-created="{{ report.created_at_timestamp }}" data-updated="{{ report.updated_at_timestamp }}" data-upvotes="{{ report.upvotes_count }}" data-token="{{ report.tracking_token }}" data-title="{{ report.title|lower }}" data-tags="{{ report.tags_display|lower }}">
+                    <div class="report-status-stripe" style="background-color: {{ report.status_color }};"></div>
+                    
+                    <div class="report-card-inner">
+                        <div class="report-card-header">
+                            <div class="report-title-token">
+                                <h2 class="report-title">{{ report.title }}</h2>
+                                <span class="report-token">{{ report.tracking_token }}</span>
+                            </div>
+                            <time class="report-timestamp">{{ report.created_at_formatted }}</time>
+                        </div>
+
+                        <div class="report-card-body">
+                            <div class="report-thumbnail-wrapper">
+                                {% if report.first_image %}
+                                <img src="{{ report.first_image }}" alt="{{ report.title }}" class="report-thumbnail-img">
+                                {% else %}
+                                <div class="report-placeholder-svg-wrap">
+                                    <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="160" height="120" rx="8" fill="#E2E8F0"/>
+                                        <circle cx="36" cy="74" r="8" fill="#CBD5E1"/>
+                                        <path d="M0 102 C30 90, 50 110, 80 94 C110 78, 130 92, 160 84 L160 120 L0 120 Z" fill="#CBD5E1"/>
+                                    </svg>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="report-card-meta">
+                                <div class="report-meta-row">
+                                    <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/>
+                                        <circle cx="12" cy="10" r="3"/>
+                                    </svg>
+                                    <span class="report-location-text">{{ report.location_name }}</span>
+                                </div>
+
+                                <div class="report-meta-row">
+                                    <span class="meta-hash-symbol">#</span>
+                                    <span class="report-tags-text">{{ report.tags_display|default:"No tags" }}</span>
+                                </div>
+
+                                <p class="report-description-text">{{ report.description }}</p>
+                            </div>
+                        </div>
+
+                        <div class="report-card-footer">
+                            <button type="button" class="btn-see-updates" data-report-id="{{ report.id }}">
+                                See updates ({{ report.updates_count }})
+                            </button>
+
+                            <button type="button" class="btn-upvote {% if report.user_has_upvoted %}has-upvoted{% endif %}" data-report-id="{{ report.id }}" aria-label="Upvote report">
+                                <span class="upvote-count">{{ report.upvotes_count }}</span>
+                                <svg class="upvote-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                {% empty %}
+                <div class="empty-feed-placeholder">
+                    <p>No reports found.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+
+        <!-- Right Sidebar: Customize Feed -->
+        <aside class="feed-sidebar">
+            <div class="customize-feed-panel">
+                <h2 class="sidebar-heading">Customize Feed</h2>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-section-title">Sort Order</h3>
+                    <div class="radio-group" role="radiogroup" aria-label="Sort order">
+                        <label class="radio-label">
+                            <input type="radio" name="sort_order" value="newest" checked>
+                            <span class="custom-radio"></span>
+                            <span class="radio-text">Newest first</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="sort_order" value="oldest">
+                            <span class="custom-radio"></span>
+                            <span class="radio-text">Oldest first</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="sort_order" value="upvoted">
+                            <span class="custom-radio"></span>
+                            <span class="radio-text">Most upvoted</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="sort_order" value="updated">
+                            <span class="custom-radio"></span>
+                            <span class="radio-text">Recently updated</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-section-title">Filter by Status</h3>
+                    <div class="radio-group" role="radiogroup" aria-label="Filter by status">
+                        <label class="radio-label">
+                            <input type="radio" name="filter_status" value="all" checked>
+                            <span class="custom-radio"></span>
+                            <span class="radio-text">None</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="filter_status" value="SUBMITTED">
+                            <span class="custom-radio"></span>
+                            <span class="radio-text">Submitted</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="filter_status" value="SCHEDULED">
+                            <span class="custom-radio"></span>
+                            <span class="radio-text">Scheduled for Inspection</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="filter_status" value="RESOLVED">
+                            <span class="custom-radio"></span>
+                            <span class="radio-text">Resolved</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Report Details Modal Popup (Image 3) -->
+    <div id="report-modal" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-report-title">
+            <!-- Left Column: Report media & details -->
+            <div class="modal-left-col">
+                <span id="modal-report-token" class="modal-token">RPT-0000-0001</span>
+                <h2 id="modal-report-title" class="modal-title">Report title</h2>
+                <p id="modal-report-description" class="modal-description">Description text</p>
+
+                <!-- Big Image Viewer -->
+                <div class="modal-image-viewer">
+                    <div id="modal-image-container" class="modal-image-container">
+                        <!-- Loaded dynamically -->
+                    </div>
+                    <!-- Carousel Navigation -->
+                    <button type="button" id="modal-prev-img" class="carousel-nav-btn prev-btn" aria-label="Previous image">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <button type="button" id="modal-next-img" class="carousel-nav-btn next-btn" aria-label="Next image">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                    <div id="modal-image-counter" class="modal-image-counter">1 / 1</div>
+                </div>
+            </div>
+
+            <!-- Right Column: Details & Updates -->
+            <div class="modal-right-col">
+                <button type="button" id="modal-close-btn" class="modal-close-btn" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+
+                <!-- Details Section -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">Details</h3>
+
+                    <div class="modal-detail-row reporter-row">
+                        <div class="reporter-avatar-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <circle cx="12" cy="8" r="3.5"></circle>
+                                <path d="M5.5 20c.5-3.5 2.8-5.5 6.5-5.5s6 2 6.5 5.5"></path>
+                            </svg>
+                        </div>
+                        <div class="reporter-meta">
+                            <span class="reporter-label">Reported by</span>
+                            <span id="modal-reporter-name" class="reporter-name">(name of reporter)</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-detail-row">
+                        <svg class="modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span id="modal-created-at" class="modal-detail-text">YYYY/MM/DD, HH:MM:SS AM</span>
+                    </div>
+
+                    <div class="modal-detail-row">
+                        <span class="meta-hash-symbol">#</span>
+                        <span id="modal-tags" class="modal-detail-text">tags, flooding, blabla</span>
+                    </div>
+
+                    <div class="modal-detail-row">
+                        <svg class="modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        <span id="modal-location" class="modal-detail-text">location</span>
+                    </div>
+
+                    <div class="modal-detail-row upvote-detail-row">
+                        <button type="button" id="modal-upvote-btn" class="modal-upvote-btn" aria-label="Upvote report">
+                            <span id="modal-upvotes-count" class="upvote-count">0</span>
+                            <svg class="upvote-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </section>
+
+                <hr class="modal-divider">
+
+                <!-- Updates Section -->
+                <section class="modal-section updates-section">
+                    <h3 class="modal-section-title">Updates</h3>
+                    <div id="modal-updates-list" class="modal-updates-list">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Embedded Reports Data -->
+    {{ reports_json|json_script:"feed-reports-json-data" }}
+
+    <script>
+        // Data & state
+        const rawDataEl = document.getElementById('feed-reports-json-data');
+        let reports = rawDataEl ? JSON.parse(rawDataEl.textContent) : [];
+        const reportsMap = new Map(reports.map(r => [r.id, r]));
+
+        let currentModalReport = null;
+        let currentModalImageIndex = 0;
+
+        // CSRF helper for Django POST
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        // Modal Elements
+        const modal = document.getElementById('report-modal');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const modalToken = document.getElementById('modal-report-token');
+        const modalTitle = document.getElementById('modal-report-title');
+        const modalDescription = document.getElementById('modal-report-description');
+        const modalImgContainer = document.getElementById('modal-image-container');
+        const modalPrevBtn = document.getElementById('modal-prev-img');
+        const modalNextBtn = document.getElementById('modal-next-img');
+        const modalImgCounter = document.getElementById('modal-image-counter');
+        const modalReporterName = document.getElementById('modal-reporter-name');
+        const modalCreatedAt = document.getElementById('modal-created-at');
+        const modalTags = document.getElementById('modal-tags');
+        const modalLocation = document.getElementById('modal-location');
+        const modalUpvoteBtn = document.getElementById('modal-upvote-btn');
+        const modalUpvotesCount = document.getElementById('modal-upvotes-count');
+        const modalUpdatesList = document.getElementById('modal-updates-list');
+
+        function openModal(reportId) {
+            const report = reportsMap.get(parseInt(reportId));
+            if (!report) return;
+
+            currentModalReport = report;
+            currentModalImageIndex = 0;
+
+            modalToken.textContent = report.tracking_token;
+            modalTitle.textContent = report.title;
+            modalDescription.textContent = report.description;
+            modalReporterName.textContent = report.reporter_name;
+            modalCreatedAt.textContent = report.created_at_detailed;
+            modalTags.textContent = report.tags_display || 'None';
+            modalLocation.textContent = report.location_name;
+            modalUpvotesCount.textContent = report.upvotes_count;
+
+            if (report.user_has_upvoted) {
+                modalUpvoteBtn.classList.add('has-upvoted');
+            } else {
+                modalUpvoteBtn.classList.remove('has-upvoted');
+            }
+
+            renderModalImage();
+            renderModalUpdates();
+
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            currentModalReport = null;
+        }
+
+        function renderModalImage() {
+            if (!currentModalReport) return;
+            const images = currentModalReport.images || [];
+
+            if (images.length === 0) {
+                modalImgContainer.innerHTML = `
+                    <div class="modal-placeholder-svg-wrap">
+                        <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="160" height="120" rx="12" fill="#E2E8F0"/>
+                            <circle cx="36" cy="74" r="8" fill="#CBD5E1"/>
+                            <path d="M0 102 C30 90, 50 110, 80 94 C110 78, 130 92, 160 84 L160 120 L0 120 Z" fill="#CBD5E1"/>
+                        </svg>
+                    </div>
+                `;
+                modalPrevBtn.style.display = 'none';
+                modalNextBtn.style.display = 'none';
+                modalImgCounter.style.display = 'none';
+                return;
+            }
+
+            if (currentModalImageIndex < 0) currentModalImageIndex = 0;
+            if (currentModalImageIndex >= images.length) currentModalImageIndex = images.length - 1;
+
+            modalImgContainer.innerHTML = `<img src="${images[currentModalImageIndex]}" alt="${currentModalReport.title}" class="modal-main-img">`;
+
+            if (images.length > 1) {
+                modalPrevBtn.style.display = 'flex';
+                modalNextBtn.style.display = 'flex';
+                modalImgCounter.style.display = 'block';
+                modalImgCounter.textContent = `${currentModalImageIndex + 1} / ${images.length}`;
+            } else {
+                modalPrevBtn.style.display = 'none';
+                modalNextBtn.style.display = 'none';
+                modalImgCounter.style.display = 'none';
+            }
+        }
+
+        modalPrevBtn.addEventListener('click', () => {
+            if (!currentModalReport || !currentModalReport.images.length) return;
+            currentModalImageIndex = (currentModalImageIndex - 1 + currentModalReport.images.length) % currentModalReport.images.length;
+            renderModalImage();
+        });
+
+        modalNextBtn.addEventListener('click', () => {
+            if (!currentModalReport || !currentModalReport.images.length) return;
+            currentModalImageIndex = (currentModalImageIndex + 1) % currentModalReport.images.length;
+            renderModalImage();
+        });
+
+        function renderModalUpdates() {
+            if (!currentModalReport) return;
+            const updates = currentModalReport.updates || [];
+
+            if (updates.length === 0) {
+                modalUpdatesList.innerHTML = `<p class="no-updates-text">No updates yet.</p>`;
+                return;
+            }
+
+            let html = '';
+            updates.forEach(u => {
+                const photoHtml = u.photo_url ? `<img src="${u.photo_url}" class="update-photo-thumb" alt="Update photo">` : '';
+                html += `
+                    <div class="update-item">
+                        <div class="update-author-row">
+                            <div class="update-avatar-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <circle cx="12" cy="8" r="3.5"></circle>
+                                    <path d="M5.5 20c.5-3.5 2.8-5.5 6.5-5.5s6 2 6.5 5.5"></path>
+                                </svg>
+                            </div>
+                            <div class="update-author-meta">
+                                <span class="update-author-name">${u.author_name}</span>
+                                <time class="update-timestamp">${u.created_at}</time>
+                            </div>
+                        </div>
+                        <p class="update-remarks">${u.remarks}</p>
+                        ${photoHtml}
+                    </div>
+                `;
+            });
+            modalUpdatesList.innerHTML = html;
+        }
+
+        // Close modal handlers
+        modalCloseBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+        });
+
+        // Upvote Functionality
+        async function triggerUpvote(reportId) {
+            try {
+                const response = await fetch(`/feed/upvote/${reportId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) return;
+                const data = await response.json();
+                if (data.success) {
+                    const report = reportsMap.get(reportId);
+                    if (report) {
+                        report.upvotes_count = data.upvotes_count;
+                        report.user_has_upvoted = data.upvoted;
+                    }
+
+                    // Update all cards with this id
+                    document.querySelectorAll(`.btn-upvote[data-report-id="${reportId}"]`).forEach(btn => {
+                        btn.querySelector('.upvote-count').textContent = data.upvotes_count;
+                        btn.classList.toggle('has-upvoted', data.upvoted);
+                    });
+
+                    // Update modal if open
+                    if (currentModalReport && currentModalReport.id === reportId) {
+                        modalUpvotesCount.textContent = data.upvotes_count;
+                        modalUpvoteBtn.classList.toggle('has-upvoted', data.upvoted);
+                    }
+
+                    // Update article attribute for sorting
+                    const card = document.querySelector(`.feed-report-card[data-id="${reportId}"]`);
+                    if (card) {
+                        card.dataset.upvotes = data.upvotes_count;
+                    }
+                }
+            } catch (err) {
+                console.error('Error toggling upvote:', err);
+            }
+        }
+
+        // Delegate Feed click events
+        document.getElementById('reports-feed-list').addEventListener('click', (e) => {
+            const seeUpdatesBtn = e.target.closest('.btn-see-updates');
+            if (seeUpdatesBtn) {
+                const reportId = seeUpdatesBtn.dataset.reportId;
+                openModal(reportId);
+                return;
+            }
+
+            const upvoteBtn = e.target.closest('.btn-upvote');
+            if (upvoteBtn) {
+                const reportId = parseInt(upvoteBtn.dataset.reportId);
+                triggerUpvote(reportId);
+                return;
+            }
+        });
+
+        modalUpvoteBtn.addEventListener('click', () => {
+            if (currentModalReport) {
+                triggerUpvote(currentModalReport.id);
+            }
+        });
+
+        // Customize Feed Filter & Sorting
+        const sortRadios = document.querySelectorAll('input[name="sort_order"]');
+        const filterRadios = document.querySelectorAll('input[name="filter_status"]');
+        const searchInput = document.getElementById('feed-search-input');
+        const feedList = document.getElementById('reports-feed-list');
+
+        function applyFeedCustomization() {
+            const selectedSort = document.querySelector('input[name="sort_order"]:checked')?.value || 'newest';
+            const selectedFilter = document.querySelector('input[name="filter_status"]:checked')?.value || 'all';
+            const query = (searchInput?.value || '').trim().toLowerCase();
+
+            const cards = Array.from(feedList.querySelectorAll('.feed-report-card'));
+
+            let visibleCount = 0;
+            cards.forEach(card => {
+                const status = card.dataset.status;
+                const token = (card.dataset.token || '').toLowerCase();
+                const title = (card.dataset.title || '').toLowerCase();
+                const tags = (card.dataset.tags || '').toLowerCase();
+
+                const matchesStatus = (selectedFilter === 'all') || (status === selectedFilter);
+                const matchesSearch = !query || token.includes(query) || title.includes(query) || tags.includes(query);
+
+                if (matchesStatus && matchesSearch) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Sorting
+            cards.sort((a, b) => {
+                if (selectedSort === 'newest') {
+                    return parseFloat(b.dataset.created) - parseFloat(a.dataset.created);
+                } else if (selectedSort === 'oldest') {
+                    return parseFloat(a.dataset.created) - parseFloat(b.dataset.created);
+                } else if (selectedSort === 'upvoted') {
+                    return parseInt(b.dataset.upvotes || 0) - parseInt(a.dataset.upvotes || 0);
+                } else if (selectedSort === 'updated') {
+                    return parseFloat(b.dataset.updated) - parseFloat(a.dataset.updated);
+                }
+                return 0;
+            });
+
+            cards.forEach(card => feedList.appendChild(card));
+
+            let emptyMsg = feedList.querySelector('.empty-feed-placeholder');
+            if (visibleCount === 0) {
+                if (!emptyMsg) {
+                    emptyMsg = document.createElement('div');
+                    emptyMsg.className = 'empty-feed-placeholder';
+                    emptyMsg.innerHTML = '<p>No reports match your filters.</p>';
+                    feedList.appendChild(emptyMsg);
+                }
+                emptyMsg.style.display = 'block';
+            } else if (emptyMsg) {
+                emptyMsg.style.display = 'none';
+            }
+        }
+
+        sortRadios.forEach(radio => radio.addEventListener('change', applyFeedCustomization));
+        filterRadios.forEach(radio => radio.addEventListener('change', applyFeedCustomization));
+        if (searchInput) {
+            searchInput.addEventListener('input', applyFeedCustomization);
+        }
+    </script>
+</body>
+</html>
